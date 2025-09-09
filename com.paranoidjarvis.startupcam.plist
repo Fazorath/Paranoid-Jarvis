@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.paranoidjarvis.startupcam</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/python3</string>
+        <string>/Users/exempt/Desktop/Projects/Paranoid-Jarvis/startup_cam_logger.py</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/tmp/startupcam.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/startupcam.err</string>
+    <key>WorkingDirectory</key>
+    <string>/Users/exempt/Desktop/Projects/Paranoid-Jarvis</string>
+</dict>
+</plist>
