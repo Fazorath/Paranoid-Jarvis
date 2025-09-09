@@ -34,6 +34,10 @@ def take_picture():
     ret, frame = cap.read()
     if ret:
         cv2.imwrite(img_path, frame)
+        # Log photo taken event
+        now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        with open(log_path, 'a') as f:
+            f.write(f"[{now}] EVENT: Photo Taken - File: {img_filename}\n")
     cap.release()
     cleanup_old_images()
 
@@ -49,7 +53,7 @@ def cleanup_old_images():
 def log_startup_time():
     now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     with open(log_path, 'a') as f:
-        f.write(f"[STARTUP] {now}\n")
+        f.write(f"[{now}] EVENT: Startup\n")
 
 def log_power_status():
     # Use pmset to check if Mac is on AC power
@@ -58,7 +62,7 @@ def log_power_status():
         if 'AC Power' in output:
             now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             with open(log_path, 'a') as f:
-                f.write(f"[POWER]   {now} - Plugged in to AC power\n")
+                f.write(f"[{now}] EVENT: Power Connected\n")
     except Exception as e:
         pass
 

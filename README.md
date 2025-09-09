@@ -4,7 +4,7 @@ Paranoid-Jarvis is a privacy/security tool for macOS that automatically takes a 
 
 ## Features
 - Captures a photo with the front-facing camera at each login/startup
-- Logs the date and time of each startup
+- Logs the date and time of each startup in a clear, human-readable format
 - Toggle the feature on/off with a single command
 - Clean, user-friendly terminal interface
 - All logs and images are stored locally for your review
@@ -39,6 +39,13 @@ This project uses the system Python (`/usr/bin/python3`) for maximum compatibili
 ## How It Works
 - When enabled, a Launch Agent runs the Python script at login/startup using the system Python.
 - The script takes a photo and logs the time to `~/ParanoidJarvisLogs/`.
+- Log entries are now more readable, for example:
+
+   ```
+   [2025-09-09 10:15:00] EVENT: Startup
+   [2025-09-09 10:15:01] EVENT: Power Connected
+   [2025-09-09 10:15:02] EVENT: Photo Taken - File: startup_image_20250909_101502.jpg
+   ```
 - Use the toggle script to move the Launch Agent plist in/out of the system folder, turning the feature on or off.
 
 ## Security & Privacy
