@@ -6,7 +6,7 @@
     <string>com.paranoidjarvis.startupcam</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/usr/bin/python3</string>
+    <string>/Users/exempt/Desktop/Projects/Paranoid-Jarvis/.venv/bin/python</string>
         <string>/Users/exempt/Desktop/Projects/Paranoid-Jarvis/startup_cam_logger.py</string>
     </array>
     <key>RunAtLoad</key>
