@@ -20,7 +20,7 @@ This project uses the system Python (`/usr/bin/python3`) for maximum compatibili
 ## Setup
 1. Clone this repository:
    ```sh
-   git clone https://github.com/yourusername/Paranoid-Jarvis.git
+   git clone https://github.com/Fazorath/Paranoid-Jarvis.git
    cd Paranoid-Jarvis
    ```
 2. Install dependencies globally or with --user:
