@@ -24,7 +24,7 @@ cd Paranoid-Jarvis
 3. Renders `com.paranoidjarvis.startupcam.plist` from `com.paranoidjarvis.startupcam.plist.template`, filling in this checkout's path and the venv's Python. The rendered file is git-ignored.
 4. Takes a test photo from the terminal so macOS asks for camera access while you're there (see [Camera permission](#camera-permission)). If no new photo appears in the output directory, the installer exits non-zero and tells you how to fix it.
 
-You can run `./install.sh` again at any time, for example after moving the repo or upgrading Python.
+You can run `./install.sh` again, for example after moving the repo or upgrading Python. **Disable the agent first** (`./toggle_startup_cam.sh` → `2`): the enabled copy in `~/Library/LaunchAgents/` keeps the old paths, and re-enabling over it fails.
 
 ## Enable, disable, status
 
@@ -38,7 +38,7 @@ This opens a menu:
 |---|---|
 | `1` Enable | Moves the rendered plist into `~/Library/LaunchAgents/` and loads it. A capture runs right away, then at every login. |
 | `2` Disable | Unloads the Launch Agent and moves the plist back into the repo. |
-| `3` Status | Says whether the agent is enabled and shows the last log line. |
+| `3` Status | Says whether the plist is in `~/Library/LaunchAgents/` (enabled) or the repo (disabled), and shows the last line of `~/ParanoidJarvisLogs/startup_log.txt`. It doesn't ask `launchctl`, and it ignores `output_dir`/`log_file` changes in the config. |
 | `h` / `q` | Help / quit. |
 
 `./toggle_startup_cam.sh --help` prints the same options.
@@ -49,7 +49,7 @@ This opens a menu:
 
 macOS asks before any app uses the camera. Things to know:
 
-- **The permission belongs to the Python interpreter, not to Paranoid-Jarvis.** The venv's `python` is a symlink to the interpreter you installed with, so the Camera entry in System Settings shows up as "Python" (or as your terminal app when you run it by hand). Any other script run by that same Python shares the permission.
+- **The permission belongs to whatever launched the capture, not to Paranoid-Jarvis.** At login, launchd runs the venv's `python`, a symlink to the interpreter you installed with, so the Camera entry is "Python". The installer's test capture runs from your terminal, and macOS may charge it to the terminal app instead. So a passing install doesn't prove the login capture will work. The first login after enabling is the real test (see the [smoke test](#manual-smoke-test)). Any other script run by that same Python shares the permission.
 - **Upgrading or reinstalling Python can reset it.** If captures stop after a Homebrew upgrade, re-run `./install.sh` and allow access again.
 - **If you clicked "Don't Allow"** or the installer's test capture failed: open **System Settings → Privacy & Security → Camera**, turn on the entry for Python (and/or your terminal), then re-run `./install.sh`.
 - **The green camera light always turns on during a capture.** The hardware controls that light and software can't turn it off. Expect a brief flash at login.
@@ -83,9 +83,9 @@ Automated tests can't cover launchd and camera permission, so after installing o
 
 - [ ] `./install.sh` finishes with `Test capture OK: …` and prints the path of a new JPG.
 - [ ] The photo opens and shows your face, not a black frame.
-- [ ] `./toggle_startup_cam.sh` → `1` (Enable) prints `Startup camera logger ENABLED.`, and a new photo and `EVENT: Startup` line appear in `~/ParanoidJarvisLogs/` within a few seconds.
+- [ ] `./toggle_startup_cam.sh` → `1` (Enable) prints `Startup camera logger ENABLED.`, and a new photo and `EVENT: Startup` line appear in your `output_dir` within a few seconds.
 - [ ] `launchctl list | grep paranoidjarvis` shows `com.paranoidjarvis.startupcam`.
-- [ ] Log out and back in (or restart). A new photo and log entry appear, and the green light flashed at login.
+- [ ] Log out and back in (or restart). A new photo and log entry appear, and the green light flashed at login. If not, check `/tmp/startupcam.err` for a camera error and allow Python under Privacy & Security → Camera.
 - [ ] `./toggle_startup_cam.sh` → `3` (Status) reports `ENABLED` and shows the latest log line.
 - [ ] `./toggle_startup_cam.sh` → `2` (Disable) prints `DISABLED`. `launchctl list | grep paranoidjarvis` prints nothing, and logging in again takes no photo.
 - [ ] `git status` shows no changes to tracked files.
@@ -95,7 +95,7 @@ Automated tests can't cover launchd and camera permission, so after installing o
 
 1. Disable the agent: `./toggle_startup_cam.sh` → `2`.
 2. Delete the repo folder.
-3. If you want, delete `~/ParanoidJarvisLogs/` and remove Python from System Settings → Privacy & Security → Camera.
+3. If you want, delete your `output_dir` (default `~/ParanoidJarvisLogs/`) and remove Python from System Settings → Privacy & Security → Camera.
 
 ## Tests
 
