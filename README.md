@@ -39,7 +39,7 @@ Paranoid-Jarvis is a privacy/security tool for macOS that automatically takes a 
    [2025-09-09 10:15:01] EVENT: Power Connected
    [2025-09-09 10:15:02] EVENT: Photo Taken - File: startup_image_20250909_101502.jpg
    ```
-- Use the toggle script to move the Launch Agent plist in/out of the system folder, turning the feature on or off.
+- Enabling copies the rendered plist into `~/Library/LaunchAgents/` and runs `launchctl bootstrap`; disabling runs `launchctl bootout` and removes the copy. Repo files are never moved, so `git status` stays clean.
 
 ## Security & Privacy
 - All photos and logs are stored locally and never leave your device.
