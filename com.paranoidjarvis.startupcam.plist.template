@@ -15,6 +15,9 @@
     <true/>
     <key>KeepAlive</key>
     <true/>
+    <!-- Keep wake/lock notifications timely; don't throttle as a background job. -->
+    <key>ProcessType</key>
+    <string>Interactive</string>
     <key>StandardOutPath</key>
     <string>/tmp/startupcam.log</string>
     <key>StandardErrorPath</key>

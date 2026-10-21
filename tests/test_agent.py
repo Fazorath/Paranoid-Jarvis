@@ -34,3 +34,19 @@ def test_system_wake_while_restarted_locked_reports_wake_then_locked_display():
     triggers.screens_woke()
 
     assert events == ["wake", "screen_wake_locked"]
+
+
+def test_failed_event_write_does_not_escape_or_lose_lock_state():
+    # An exception escaping a pyobjc callback would kill the agent, and KeepAlive
+    # would relaunch it into another login capture.
+    def failing_emit(event):
+        raise OSError("disk full")
+
+    triggers = Triggers(failing_emit)
+
+    triggers.screen_locked()
+    triggers.screens_woke()
+    triggers.heartbeat()
+    triggers.screen_unlocked()
+
+    assert triggers.locked is False

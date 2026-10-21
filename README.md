@@ -65,7 +65,7 @@ Everything stays on your Mac. Settings live in `paranoid_jarvis.conf`:
 | `camera_index` | `0` | Which camera to use (0 = built-in) |
 | `log_file` | `events.jsonl` | Event log file name inside `output_dir` |
 | `image_prefix` | `startup_image_` | Photo file name prefix |
-| `heartbeat_minutes` | `15` | How often the agent logs a `heartbeat` event |
+| `heartbeat_minutes` | `15` | How often the agent logs a `heartbeat` event and prunes old photos (minimum 1) |
 
 The log is JSON Lines, one object per event:
 
