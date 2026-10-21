@@ -10,6 +10,8 @@ from datetime import datetime
 # Its photo is never removed by retention.
 SUSPECTED_INTRUSION = "suspected_intrusion"
 
+DEFAULT_RETENTION_DAYS = 30
+
 
 def append_event(log_path, event, *, photo=None, power=None, classification=None,
                  now=None, **context):
@@ -32,7 +34,7 @@ def append_event(log_path, event, *, photo=None, power=None, classification=None
 
 
 def read_events(log_path):
-    """Yield events in order, skipping unparseable lines. A missing log is empty."""
+    """Yield events in order, skipping lines that aren't JSON objects. A missing log is empty."""
     try:
         f = open(log_path)
     except FileNotFoundError:
@@ -40,9 +42,11 @@ def read_events(log_path):
     with f:
         for line in f:
             try:
-                yield json.loads(line)
+                record = json.loads(line)
             except json.JSONDecodeError:
                 continue
+            if isinstance(record, dict):
+                yield record
 
 
 def format_event(record):
@@ -71,10 +75,12 @@ def power_source(run=subprocess.check_output):
     return None
 
 
-def apply_retention(output_dir, log_path, image_prefix, max_age_days=30, now=None):
+def apply_retention(output_dir, log_path, image_prefix, max_age_days=DEFAULT_RETENTION_DAYS,
+                    now=None):
     """Delete photos older than max_age_days, except those logged as suspected intrusions.
 
-    Returns the paths deleted.
+    Returns the paths deleted. A photo that can't be removed is skipped, so retention
+    never masks a capture error.
     """
     protected = {
         e["photo"] for e in read_events(log_path)
@@ -85,6 +91,9 @@ def apply_retention(output_dir, log_path, image_prefix, max_age_days=30, now=Non
     for path in glob.glob(os.path.join(glob.escape(output_dir), f"{glob.escape(image_prefix)}*.jpg")):
         if os.path.basename(path) in protected or os.path.getmtime(path) >= cutoff:
             continue
-        os.remove(path)
+        try:
+            os.remove(path)
+        except OSError:
+            continue
         deleted.append(path)
     return deleted

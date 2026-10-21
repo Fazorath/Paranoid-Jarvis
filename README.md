@@ -65,7 +65,6 @@ Everything stays on your Mac. Settings live in `paranoid_jarvis.conf`:
 | `camera_index` | `0` | Which camera to use (0 = built-in) |
 | `log_file` | `events.jsonl` | Event log file name inside `output_dir` |
 | `image_prefix` | `startup_image_` | Photo file name prefix |
-| `power_log` | `yes` | Record the power source (`ac`/`battery`) on each event |
 
 The log is JSON Lines, one object per event:
 
@@ -73,7 +72,7 @@ The log is JSON Lines, one object per event:
 {"ts": "2026-10-20T10:15:02-04:00", "event": "login", "photo": "startup_image_20261020_101502.jpg", "power": "ac", "classification": null, "context": {}}
 ```
 
-`photo` is `null` if the capture failed, and `power` is `null` when `power_log = no` or the power source can't be read.
+`photo` is `null` if the capture failed, and `power` (`ac` or `battery`) is `null` only if `pmset` can't be read.
 
 When the script runs under launchd, its stdout and stderr go to `/tmp/startupcam.log` and `/tmp/startupcam.err`. Look there if the log above stops growing.
 

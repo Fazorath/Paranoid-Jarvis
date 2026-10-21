@@ -35,3 +35,11 @@ def test_truncated_line_from_a_crash_is_skipped(tmp_path):
     event_log.append_event(log, "heartbeat")
 
     assert [e["event"] for e in event_log.read_events(log)] == ["login", "heartbeat"]
+
+
+def test_line_that_is_not_an_event_object_is_skipped(tmp_path):
+    log = tmp_path / "events.jsonl"
+    log.write_text('123\n["login"]\n')
+    event_log.append_event(log, "login")
+
+    assert [e["event"] for e in event_log.read_events(log)] == ["login"]

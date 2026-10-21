@@ -13,11 +13,10 @@ config.read(os.path.join(os.path.dirname(__file__), 'paranoid_jarvis.conf'))
 
 output_dir = os.path.expanduser(config.get('general', 'output_dir', fallback='~/ParanoidJarvisLogs'))
 os.makedirs(output_dir, exist_ok=True)
-retention_days = config.getint('general', 'retention_days', fallback=30)
+retention_days = config.getint('general', 'retention_days', fallback=event_log.DEFAULT_RETENTION_DAYS)
 camera_index = config.getint('general', 'camera_index', fallback=0)
 log_file = config.get('general', 'log_file', fallback='events.jsonl')
 image_prefix = config.get('general', 'image_prefix', fallback='startup_image_')
-log_power = config.get('general', 'power_log', fallback='yes').lower() in ['yes', 'true', '1']
 log_path = os.path.join(output_dir, log_file)
 
 def take_picture():
@@ -46,7 +45,7 @@ def main():
     finally:
         # Log the login even if capture failed, so the attempt is on record.
         event_log.append_event(log_path, 'login', photo=photo,
-                               power=event_log.power_source() if log_power else None)
+                               power=event_log.power_source())
         event_log.apply_retention(output_dir, log_path, image_prefix, retention_days)
 
 if __name__ == '__main__':
