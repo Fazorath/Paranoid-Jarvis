@@ -1,2 +1,4 @@
 opencv-python
 configparser
+pyobjc-framework-Cocoa==12.2.2
+pyobjc-framework-Quartz==12.2.2
