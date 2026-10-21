@@ -9,13 +9,9 @@ Paranoid-Jarvis is a privacy/security tool for macOS that automatically takes a 
 - Clean, user-friendly terminal interface
 - All logs and images are stored locally for your review
 
-## Quick Start for Most Users
-This project uses the system Python (`/usr/bin/python3`) for maximum compatibility. You must install the required Python packages globally or with `--user`.
-
 ## Requirements
 - macOS
-- Python 3.7+ (system Python is fine)
-- Python packages: `opencv-python`, `configparser`
+- Python 3.11+ (dependencies are installed into a repo-local `.venv` by `install.sh`)
 
 ## Setup
 1. Clone this repository:
@@ -34,7 +30,7 @@ This project uses the system Python (`/usr/bin/python3`) for maximum compatibili
    ```
 
 ## How It Works
-- When enabled, a Launch Agent runs the Python script at login/startup using the system Python.
+- When enabled, a Launch Agent runs the Python script at login/startup using the repo's `.venv` Python.
 - The script takes a photo and logs the time to `~/ParanoidJarvisLogs/`.
 - Log entries are now more readable, for example:
 
@@ -48,7 +44,6 @@ This project uses the system Python (`/usr/bin/python3`) for maximum compatibili
 ## Security & Privacy
 - All photos and logs are stored locally and never leave your device.
 - You control when the feature is enabled or disabled.
-- No virtual environment is required for basic use.
 
 ## Uninstall
 1. Use the toggle script to disable the feature.

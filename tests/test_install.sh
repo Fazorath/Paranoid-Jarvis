@@ -26,7 +26,7 @@ test_render_plist_substitutes_repo_and_python() {
     [[ "$python" == "$TMP/My Repo & <Co>/.venv/bin/python" ]] || { fail "python path wrong: $python"; return; }
     [[ "$script" == "$TMP/My Repo & <Co>/startup_cam_logger.py" ]] || { fail "script path wrong: $script"; return; }
     [[ "$wd" == "$TMP/My Repo & <Co>" ]] || { fail "WorkingDirectory wrong: $wd"; return; }
-    if grep -q "__" "$out"; then fail "placeholder left in rendered plist"; return; fi
+    if grep -qE "__(PYTHON|REPO_DIR)__" "$out"; then fail "placeholder left in rendered plist"; return; fi
     pass "render_plist substitutes repo and python"
 }
 

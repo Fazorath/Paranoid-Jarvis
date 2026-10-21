@@ -5,13 +5,12 @@
 # Usage: ./install.sh            (set PYTHON=/path/to/python3 to pick an interpreter)
 
 PLIST_NAME="com.paranoidjarvis.startupcam.plist"
-MIN_PYTHON="3.11"
 
 # Render the plist template, substituting the repo path and interpreter.
 # Usage: render_plist <template> <output> <repo_dir> <python>
 render_plist() {
     local template="$1" output="$2" repo_dir="$3" python="$4"
-    python3 - "$template" "$output" "$repo_dir" "$python" <<'PY' || return 1
+    "${PYTHON:-python3}" - "$template" "$output" "$repo_dir" "$python" <<'PY' || return 1
 import sys
 from xml.sax.saxutils import escape
 
@@ -54,7 +53,7 @@ verify_capture() {
 }
 
 python_is_supported() {
-    "$1" -c "import sys; sys.exit(sys.version_info < tuple(map(int, '$MIN_PYTHON'.split('.'))))" 2>/dev/null
+    "$1" -c "import sys; sys.exit(sys.version_info < (3, 11))" 2>/dev/null
 }
 
 # Output directory as the logger resolves it from paranoid_jarvis.conf.
@@ -75,11 +74,11 @@ main() {
     python="${PYTHON:-python3}"
 
     if ! command -v "$python" >/dev/null 2>&1; then
-        echo "Error: '$python' not found. Install Python $MIN_PYTHON+ (e.g. 'brew install python')." >&2
+        echo "Error: '$python' not found. Install Python 3.11+ (e.g. 'brew install python')." >&2
         exit 1
     fi
     if ! python_is_supported "$python"; then
-        echo "Error: Python $MIN_PYTHON+ required; '$python' is $("$python" --version 2>&1)." >&2
+        echo "Error: Python 3.11+ required; '$python' is $("$python" --version 2>&1)." >&2
         echo "Set PYTHON=/path/to/python3.11+ and re-run." >&2
         exit 1
     fi
@@ -93,13 +92,12 @@ main() {
     "$venv_python" -m pip install --quiet -r "$repo_dir/requirements.txt"
 
     echo "==> Rendering LaunchAgent plist"
-    render_plist "$repo_dir/$PLIST_NAME.template" "$repo_dir/$PLIST_NAME" "$repo_dir" "$venv_python"
+    PYTHON="$venv_python" render_plist "$repo_dir/$PLIST_NAME.template" "$repo_dir/$PLIST_NAME" "$repo_dir" "$venv_python"
 
     echo "==> Running test capture"
     echo "If macOS asks for camera access, click Allow."
     output_dir="$(conf_output_dir "$venv_python" "$repo_dir")"
     mkdir -p "$output_dir"
-    set +e
     if ! verify_capture "$output_dir" "$venv_python" "$repo_dir/startup_cam_logger.py"; then
         exit 1
     fi
