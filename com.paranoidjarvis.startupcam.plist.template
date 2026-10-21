@@ -8,10 +8,16 @@
     <key>ProgramArguments</key>
     <array>
         <string>__PYTHON__</string>
-        <string>__REPO_DIR__/startup_cam_logger.py</string>
+        <string>-m</string>
+        <string>paranoid_jarvis.agent</string>
     </array>
     <key>RunAtLoad</key>
     <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <!-- Keep wake/lock notifications timely; don't throttle as a background job. -->
+    <key>ProcessType</key>
+    <string>Interactive</string>
     <key>StandardOutPath</key>
     <string>/tmp/startupcam.log</string>
     <key>StandardErrorPath</key>

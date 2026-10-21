@@ -19,12 +19,14 @@ test_render_plist_substitutes_repo_and_python() {
     render_plist "$REPO_DIR/com.paranoidjarvis.startupcam.plist.template" "$out" "$repo" "$repo/.venv/bin/python" >/dev/null
 
     plutil -lint -s "$out" || { fail "rendered plist is not valid"; return; }
-    local python script wd
+    local python args wd keepalive
     python="$(plutil -extract ProgramArguments.0 raw -o - "$out")"
-    script="$(plutil -extract ProgramArguments.1 raw -o - "$out")"
+    args="$(plutil -extract ProgramArguments.1 raw -o - "$out") $(plutil -extract ProgramArguments.2 raw -o - "$out")"
+    keepalive="$(plutil -extract KeepAlive raw -o - "$out")"
     wd="$(plutil -extract WorkingDirectory raw -o - "$out")"
     [[ "$python" == "$TMP/My Repo & <Co>/.venv/bin/python" ]] || { fail "python path wrong: $python"; return; }
-    [[ "$script" == "$TMP/My Repo & <Co>/startup_cam_logger.py" ]] || { fail "script path wrong: $script"; return; }
+    [[ "$args" == "-m paranoid_jarvis.agent" ]] || { fail "agent module args wrong: $args"; return; }
+    [[ "$keepalive" == "true" ]] || { fail "KeepAlive should be true, got: $keepalive"; return; }
     [[ "$wd" == "$TMP/My Repo & <Co>" ]] || { fail "WorkingDirectory wrong: $wd"; return; }
     if grep -qE "__(PYTHON|REPO_DIR)__" "$out"; then fail "placeholder left in rendered plist"; return; fi
     pass "render_plist substitutes repo and python"
