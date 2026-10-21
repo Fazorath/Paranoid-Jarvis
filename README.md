@@ -24,7 +24,7 @@ cd Paranoid-Jarvis
 3. Renders `com.paranoidjarvis.startupcam.plist` from `com.paranoidjarvis.startupcam.plist.template`, filling in this checkout's path and the venv's Python. The rendered file is git-ignored.
 4. Takes a test photo from the terminal so macOS asks for camera access while you're there (see [Camera permission](#camera-permission)). If no new photo appears in the output directory, the installer exits non-zero and tells you how to fix it.
 
-You can run `./install.sh` again, for example after moving the repo or upgrading Python. **Disable the agent first** (`./toggle_startup_cam.sh` → `2`): the enabled copy in `~/Library/LaunchAgents/` keeps the old paths, and re-enabling over it fails.
+You can run `./install.sh` again, for example after moving the repo or upgrading Python. Then choose Enable again (`./toggle_startup_cam.sh` → `1`): it notices that the copy in `~/Library/LaunchAgents/` is out of date, boots out the running agent and installs the new copy.
 
 ## Enable, disable, status
 
@@ -36,14 +36,14 @@ This opens a menu:
 
 | Option | What it does |
 |---|---|
-| `1` Enable | Moves the rendered plist into `~/Library/LaunchAgents/` and loads it. A capture runs right away, then at every login. |
-| `2` Disable | Unloads the Launch Agent and moves the plist back into the repo. |
-| `3` Status | Says whether the plist is in `~/Library/LaunchAgents/` (enabled) or the repo (disabled), and shows the last line of `~/ParanoidJarvisLogs/startup_log.txt`. It doesn't ask `launchctl`, and it ignores `output_dir`/`log_file` changes in the config. |
+| `1` Enable | Copies the rendered plist into `~/Library/LaunchAgents/` and runs `launchctl bootstrap gui/$UID`. A capture runs right away, then at every login. Repo files are never moved, so `git status` stays clean. |
+| `2` Disable | Runs `launchctl bootout` and removes the copy from `~/Library/LaunchAgents/`. If bootout fails, the copy is kept and the script exits non-zero. |
+| `3` Status | Says whether a copy is in `~/Library/LaunchAgents/` (enabled) or only the rendered plist in the repo (disabled), and shows the last line of `~/ParanoidJarvisLogs/startup_log.txt`. It doesn't ask `launchctl`, and it ignores `output_dir`/`log_file` changes in the config. |
 | `h` / `q` | Help / quit. |
 
 `./toggle_startup_cam.sh --help` prints the same options.
 
-> **Coming soon:** non-interactive `enable`, `disable` and `status` subcommands ([#9](https://github.com/Fazorath/Paranoid-Jarvis/issues/9)) and copy-based enabling with `launchctl bootstrap`/`bootout` ([#3](https://github.com/Fazorath/Paranoid-Jarvis/issues/3)). This section will change when they land.
+> **Coming soon:** non-interactive `enable`, `disable` and `status` subcommands ([#9](https://github.com/Fazorath/Paranoid-Jarvis/issues/9)). This section will change when they land.
 
 ## Camera permission
 
@@ -101,4 +101,5 @@ Automated tests can't cover launchd and camera permission, so after installing o
 
 ```sh
 bash tests/test_install.sh
+zsh tests/test_toggle.zsh
 ```
