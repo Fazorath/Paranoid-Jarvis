@@ -12,7 +12,7 @@ LAUNCHCTL="${LAUNCHCTL:-launchctl}"
 PLIST_LAUNCHAGENTS="$LAUNCH_AGENTS_DIR/$PLIST_NAME"
 LAUNCHD_DOMAIN="gui/$UID"
 LAUNCHD_SERVICE="$LAUNCHD_DOMAIN/com.paranoidjarvis.startupcam"
-LOG_PATH="$HOME/ParanoidJarvisLogs/startup_log.txt"
+LOG_PATH="$HOME/ParanoidJarvisLogs/events.jsonl"
 
 
 
