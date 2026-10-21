@@ -43,7 +43,7 @@ Status: agreed (grilling session, 2026-10-20). Board: https://github.com/users/F
 - Replace ad-hoc `open()/write` with the `logging` module; no bare `except: pass`.
 - launchd stdout/stderr go to the output directory, not `/tmp`.
 - Camera warm-up is time-based (or waits for frame brightness to stabilise), not a fixed 5 frames.
-- "Power Connected" event kept as-is.
+- "Power Connected" event kept as-is. (Superseded in Phase 2 by the `power` event field, §5.6.)
 
 ### 4.5 Repo hygiene
 - `requirements.txt`: drop `configparser` (stdlib), pin `opencv-python`.

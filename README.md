@@ -38,7 +38,7 @@ This opens a menu:
 |---|---|
 | `1` Enable | Copies the rendered plist into `~/Library/LaunchAgents/` and runs `launchctl bootstrap gui/$UID`. A capture runs right away, then at every login. Repo files are never moved, so `git status` stays clean. |
 | `2` Disable | Runs `launchctl bootout` and removes the copy from `~/Library/LaunchAgents/`. If bootout fails, the copy is kept and the script exits non-zero. |
-| `3` Status | Says whether a copy is in `~/Library/LaunchAgents/` (enabled) or only the rendered plist in the repo (disabled), and shows the last line of `~/ParanoidJarvisLogs/startup_log.txt`. It doesn't ask `launchctl`, and it ignores `output_dir`/`log_file` changes in the config. |
+| `3` Status | Says whether a copy is in `~/Library/LaunchAgents/` (enabled) or only the rendered plist in the repo (disabled), and shows the last line of `~/ParanoidJarvisLogs/events.jsonl`. It doesn't ask `launchctl`, and it ignores `output_dir`/`log_file` changes in the config. |
 | `h` / `q` | Help / quit. |
 
 `./toggle_startup_cam.sh --help` prints the same options.
@@ -61,19 +61,18 @@ Everything stays on your Mac. Settings live in `paranoid_jarvis.conf`:
 | Setting | Default | Meaning |
 |---|---|---|
 | `output_dir` | `~/ParanoidJarvisLogs` | Where photos and the log are written |
-| `max_images` | `5` | Photos kept; the oldest are deleted first |
+| `retention_days` | `30` | Photos older than this are deleted; suspected-intrusion photos are always kept |
 | `camera_index` | `0` | Which camera to use (0 = built-in) |
-| `log_file` | `startup_log.txt` | Log file name inside `output_dir` |
+| `log_file` | `events.jsonl` | Event log file name inside `output_dir` |
 | `image_prefix` | `startup_image_` | Photo file name prefix |
-| `power_log` | `yes` | Also log when the Mac is on AC power |
 
-Log lines look like this:
+The log is JSON Lines, one object per event:
 
 ```
-[2026-10-20 10:15:00] EVENT: Startup
-[2026-10-20 10:15:01] EVENT: Power Connected
-[2026-10-20 10:15:02] EVENT: Photo Taken - File: startup_image_20261020_101502.jpg
+{"ts": "2026-10-20T10:15:02-04:00", "event": "login", "photo": "startup_image_20261020_101502.jpg", "power": "ac", "classification": null, "context": {}}
 ```
+
+`photo` is `null` if the capture failed, and `power` (`ac` or `battery`) is `null` only if `pmset` can't be read.
 
 When the script runs under launchd, its stdout and stderr go to `/tmp/startupcam.log` and `/tmp/startupcam.err`. Look there if the log above stops growing.
 
