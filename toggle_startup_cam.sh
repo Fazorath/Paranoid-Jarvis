@@ -3,43 +3,63 @@
 
 
 PLIST_NAME="com.paranoidjarvis.startupcam.plist"
+# Captured here because inside a zsh function $0 is the function's name.
 SCRIPT_PATH="$0"
 PLIST_PROJECT="${0:A:h}/$PLIST_NAME"
 # Overridable so tests can use a sandbox and a fake launchctl.
 LAUNCH_AGENTS_DIR="${LAUNCH_AGENTS_DIR:-$HOME/Library/LaunchAgents}"
 LAUNCHCTL="${LAUNCHCTL:-launchctl}"
 PLIST_LAUNCHAGENTS="$LAUNCH_AGENTS_DIR/$PLIST_NAME"
+LAUNCHD_DOMAIN="gui/$UID"
+LAUNCHD_SERVICE="$LAUNCHD_DOMAIN/com.paranoidjarvis.startupcam"
 LOG_PATH="$HOME/ParanoidJarvisLogs/startup_log.txt"
 
 
 
-function enable_agent() {
-    if [ -f "$PLIST_LAUNCHAGENTS" ]; then
-        echo "Already enabled."
-    elif [ -f "$PLIST_PROJECT" ]; then
-        mkdir -p "$LAUNCH_AGENTS_DIR"
-        cp "$PLIST_PROJECT" "$PLIST_LAUNCHAGENTS"
-        if "$LAUNCHCTL" bootstrap "gui/$UID" "$PLIST_LAUNCHAGENTS"; then
-            echo "Startup camera logger ENABLED."
-        else
-            rm -f "$PLIST_LAUNCHAGENTS"
-            echo "launchctl bootstrap failed; not enabled."
-            return 1
-        fi
-    else
-        echo "Plist not found in project folder. Run ./install.sh first."
-    fi
+function agent_loaded() {
+    "$LAUNCHCTL" print "$LAUNCHD_SERVICE" >/dev/null 2>&1
 }
 
-function disable_agent() {
-    if [ -f "$PLIST_LAUNCHAGENTS" ]; then
-        # bootout fails if the agent isn't loaded; removing the copy still disables it.
-        "$LAUNCHCTL" bootout "gui/$UID" "$PLIST_LAUNCHAGENTS" || echo "launchctl bootout failed (agent may not have been loaded)."
-        rm -f "$PLIST_LAUNCHAGENTS"
-        echo "Startup camera logger DISABLED."
-    else
-        echo "Already disabled."
+# Copy the rendered plist into LaunchAgents and bootstrap it. A stale or legacy
+# copy (e.g. after re-running install.sh) is booted out and replaced.
+function enable_agent() {
+    if [ ! -f "$PLIST_PROJECT" ]; then
+        echo "Plist not found in project folder. Run ./install.sh first." >&2
+        return 1
     fi
+    if cmp -s "$PLIST_PROJECT" "$PLIST_LAUNCHAGENTS" && agent_loaded; then
+        echo "Already enabled."
+        return 0
+    fi
+    # bootstrap fails if the label is already loaded, so unload the old agent first.
+    if agent_loaded && ! "$LAUNCHCTL" bootout "$LAUNCHD_SERVICE"; then
+        echo "launchctl bootout of the running agent failed; not enabled." >&2
+        return 1
+    fi
+    mkdir -p "$LAUNCH_AGENTS_DIR"
+    cp "$PLIST_PROJECT" "$PLIST_LAUNCHAGENTS"
+    if ! "$LAUNCHCTL" bootstrap "$LAUNCHD_DOMAIN" "$PLIST_LAUNCHAGENTS"; then
+        rm -f "$PLIST_LAUNCHAGENTS"
+        echo "launchctl bootstrap failed; not enabled." >&2
+        return 1
+    fi
+    echo "Startup camera logger ENABLED."
+}
+
+# Boot out the agent and remove the LaunchAgents copy. The copy is kept if
+# bootout fails, so status keeps reporting the agent as enabled.
+function disable_agent() {
+    if agent_loaded; then
+        if ! "$LAUNCHCTL" bootout "$LAUNCHD_SERVICE"; then
+            echo "launchctl bootout failed; agent still loaded." >&2
+            return 1
+        fi
+    elif [ ! -f "$PLIST_LAUNCHAGENTS" ]; then
+        echo "Already disabled."
+        return 0
+    fi
+    rm -f "$PLIST_LAUNCHAGENTS"
+    echo "Startup camera logger DISABLED."
 }
 
 function status_agent() {
@@ -72,7 +92,7 @@ function print_help() {
 }
 
 
-main() {
+function main() {
     if [[ "$1" == "-h" || "$1" == "--help" ]]; then
         print_help
         exit 0
