@@ -3,7 +3,7 @@
 
 
 PLIST_NAME="com.paranoidjarvis.startupcam.plist"
-PLIST_PROJECT="$HOME/Desktop/Projects/Paranoid-Jarvis/$PLIST_NAME"
+PLIST_PROJECT="${0:A:h}/$PLIST_NAME"
 PLIST_LAUNCHAGENTS="$HOME/Library/LaunchAgents/$PLIST_NAME"
 LOG_PATH="$HOME/ParanoidJarvisLogs/startup_log.txt"
 
@@ -17,7 +17,7 @@ function enable_agent() {
     elif [ -f "$PLIST_LAUNCHAGENTS" ]; then
         echo "Already enabled."
     else
-        echo "Plist not found in project folder. Cannot enable."
+        echo "Plist not found in project folder. Run ./install.sh first."
     fi
 }
 

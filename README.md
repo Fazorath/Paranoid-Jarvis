@@ -23,15 +23,12 @@ This project uses the system Python (`/usr/bin/python3`) for maximum compatibili
    git clone https://github.com/Fazorath/Paranoid-Jarvis.git
    cd Paranoid-Jarvis
    ```
-2. Install dependencies globally or with --user:
+2. Run the installer (Python 3.11+ required; set `PYTHON=/path/to/python3` to choose one):
    ```sh
-   pip3 install --user -r requirements.txt
+   ./install.sh
    ```
-3. Make the toggle script executable:
-   ```sh
-   chmod +x toggle_startup_cam.sh
-   ```
-4. Use the toggle script to enable or disable the startup camera logger:
+   It creates `.venv`, installs `requirements.txt`, renders the Launch Agent plist for this checkout from `com.paranoidjarvis.startupcam.plist.template`, and takes a test photo. Click **Allow** if macOS asks for camera access; if the test fails, enable Python under System Settings → Privacy & Security → Camera and re-run.
+3. Use the toggle script to enable or disable the startup camera logger:
    ```sh
    ./toggle_startup_cam.sh
    ```
